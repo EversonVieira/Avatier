@@ -245,8 +245,6 @@ namespace Avatier.Service.Services
             return response;
         }
 
-        // ── Groups ─────────────────────────────────────────────────────
-
         public Response<List<LdapGroupOutputDto>> ListGroups()
         {
             var response = new Response<List<LdapGroupOutputDto>>();

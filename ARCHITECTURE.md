@@ -5,6 +5,9 @@
 ```
 Avatier/
 ├── Avatier.Api/                  # Web API layer (controllers, DI, middleware)
+│   ├── Configuration/
+│   │   ├── ApiConventions.cs     # IActionModelConvention – global ProducesResponseType metadata
+│   │   └── ApiExceptionFilter.cs # IExceptionFilter – ProblemDetails for unhandled exceptions
 │   ├── Controllers/
 │   │   ├── AuthController.cs     # POST /api/auth/login
 │   │   ├── GroupsController.cs   # CRUD for group membership
@@ -81,6 +84,69 @@ The combination of Seq with the sensitivity-aware logging in `BaseLayer` means d
 2. `MapScalarApiReference()` maps the Scalar UI, configured with a custom title and a default HTTP client preset (`CSharp` / `HttpClient`) so generated code snippets match the project's language.
 
 Both `UseOpenApi()` and `MapScalarApiReference()` are gated behind `app.Environment.IsDevelopment()`, ensuring the documentation endpoint is never exposed in production.
+
+## OpenAPI Specification & Response Metadata
+
+The OpenAPI document is generated at runtime by **NSwag**. It reflects every response an endpoint can produce by combining three layers of metadata, each with a distinct responsibility.
+
+### Layer 1 – Global Convention (`ApiResponseConventions`)
+
+`ApiResponseConventions` implements `IActionModelConvention` and is registered in `Program.cs` via `opt.Conventions.Add(...)`. It runs once per action at application startup and attaches `ProducesResponseTypeAttribute` filters that apply to **every** action:
+
+| Status Code | Response Body | Reason |
+|-------------|---------------|--------|
+| **400** Bad Request | `ProblemDetails` | Model-validation failures (`[ApiController]` auto-validation) or explicit `BadRequest(...)` returns |
+| **401** Unauthorized | *(empty)* | Rejected authentication |
+| **500** Internal Server Error | `ProblemDetails` | Unhandled exceptions caught by `ApiExceptionFilter` |
+
+Because these are applied globally, individual controllers never need to repeat them.
+
+### Layer 2 – Global Exception Filter (`ApiExceptionFilter`)
+
+`ApiExceptionFilter` implements `IExceptionFilter` and is registered in `Program.cs` via `opt.Filters.Add<ApiExceptionFilter>()`. It catches any unhandled exception that escapes a controller action and converts it into a `ProblemDetails` JSON response:
+
+- **`UnauthorizedAccessException`** → 401 with title "Unauthorized Access".
+- **All other exceptions** → 500. In `DEBUG` builds the stack trace is included in the `ProblemDetails.Extensions`; in release builds the detail is replaced with a generic message to avoid leaking internals.
+
+The filter also logs the exception via `ILogger<ApiExceptionFilter>` before short-circuiting the pipeline.
+
+This filter is the runtime counterpart to the convention's 500 metadata — the convention tells NSwag *what shape* the error looks like; the filter ensures the application *actually returns* that shape.
+
+### Layer 3 – Per-Action Attributes (`[ProducesResponseType<T>]`)
+
+Each controller action declares its **action-specific** success and non-global error responses using the generic `[ProducesResponseType<T>(statusCode)]` attribute. These document the concrete `Response` / `Response<T>` types that NSwag should include in the OpenAPI schema.
+
+Examples across the codebase:
+
+| Controller | Action | Attributes |
+|---|---|---|
+| `AuthController` | `Login` | `200 → Response<bool>` |
+| `GroupsController` | `List` | `200 → Response<List<LdapGroupOutputDto>>` |
+| `GroupsController` | `Get` | `200 → Response<LdapGroupOutputDto>`, `404 → Response<LdapGroupOutputDto>` |
+| `GroupsController` | `AddMember` | `200 → Response` |
+| `GroupsController` | `RemoveMember` | `200 → Response` |
+| `LdapController` | `TestConnection` | `200 → Response<bool>`, `503 → Response<bool>` |
+| `LdapController` | `Search` | `200 → Response<List<Dictionary<string, string>>>` |
+| `UsersController` | `List` | `200 → Response<List<LdapUserOutputDto>>` |
+| `UsersController` | `Get` | `200 → Response<LdapUserOutputDto>`, `404 → Response<LdapUserOutputDto>` |
+| `UsersController` | `Update` | `200 → Response` |
+| `UsersController` | `ChangePassword` | `200 → Response` |
+
+Status codes like **404** and **503** only appear on the specific actions that can produce them, keeping the spec precise.
+
+### How the Layers Compose
+
+For any given action, NSwag merges all three sources into one operation object:
+
+```
+Convention (400, 401, 500 – ProblemDetails)   ← applied to every action
+  + Exception Filter                          ← enforces the 500 shape at runtime
+  + Per-action attributes (200, 404, 503…)    ← action-specific success/failure types
+  ────────────────────────────────────────
+  = Complete OpenAPI operation responses
+```
+
+This layered approach keeps controllers free of repetitive boilerplate while still producing a fully-typed OpenAPI spec that Scalar renders with accurate request/response examples.
 
 ## Key Design Decisions
 

@@ -18,7 +18,7 @@ userPassword: password123
 
 dn: uid=jsmith,ou=People,dc=avatier,dc=local
 objectClass: inetOrgPerson
-uid: jsmith
+uid: jsmith 
 cn: Jane Smith
 sn: Smith
 givenName: Jane

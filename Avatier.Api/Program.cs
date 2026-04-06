@@ -60,6 +60,7 @@ if (app.Environment.IsDevelopment())
     {
         options
             .WithTitle("Avatier API")
+            .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
 }
