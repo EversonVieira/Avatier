@@ -33,20 +33,20 @@ cd Avatier.Api
 dotnet run
 ```
 
-The API starts on `https://localhost:8081` / `http://localhost:8080` by default.
+The API starts on `https://localhost:5001` / `http://localhost:5000` by default.
 
 ### 3. Explore the API
 
 Open the Scalar interactive documentation at:
 
 ```
-https://localhost:8081/scalar/v1
+https://localhost:5001/scalar/v1
 ```
 
 The NSwag-generated OpenAPI spec is available at:
 
 ```
-https://localhost:8081/swagger/v1/swagger.json
+https://localhost:5001/swagger/v1/swagger.json
 ```
 
 ## Seed Data
@@ -132,3 +132,18 @@ LDAP settings are in `appsettings.Development.json` (local dev) and overridden v
 - The admin account (`cn=admin`) is used for all server-side LDAP operations; user-initiated actions (password change, login) verify credentials via a separate LDAP bind as the target user.
 - `groupOfNames` requires at least one `member`; the API returns a clear message if you try to remove the last member.
 - Passwords are stored using OpenLDAP's default hashing scheme.
+
+## Time Consumption
+
+~7 hours total:
+
+- 1.5 hours: Setting up the Api infrastructure (OpenLDAP, phpLDAPadmin, PostgreSQL, Seq)
+- 4 hours: Implementing the API endpoints, including LDAP operations and error handling
+- 1.5 hours: Reviewing the SQL Migration, testing the API with scalar, and writing this README documentation.
+
+## Considerations:
+
+- First time integrating with OpenLDAP and understanding its schema and operations took some time.
+- Some libraries for LDAP were missing and required deep research.
+- Architecture was defined to be simple and focused on core identity management features, without over-engineering for extensibility or additional features like provisioning workflows, role-based access control, etc.
+- AI was used to assist with generating boilerplate code, improving the readability for this .md files and generate boilerplate code.

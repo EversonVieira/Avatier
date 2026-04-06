@@ -13,6 +13,5 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include="ldap\seed.ldif" />
-    <None Include="README.md" />
   </ItemGroup>
 </Project>

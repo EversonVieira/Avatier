@@ -2,6 +2,10 @@ services:
   avatier.api:
     image: ${DOCKER_REGISTRY-}avatierapi
     container_name: avatier_api
+    ports:
+        - "5000:8080"
+        - "5001:8081"
+
     build:
       context: Avatier.Api
       dockerfile: Dockerfile
