@@ -16,17 +16,20 @@ namespace Avatier.Api.Controllers
         }
 
         [HttpGet("test-connection")]
-        public ActionResult<Response<bool>> TestConnection()
+        [ProducesResponseType<Response<bool>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<Response<bool>>(StatusCodes.Status503ServiceUnavailable)]
+        public IActionResult TestConnection()
         {
             var response = _ldapService.TestConnection();
             if (response.IsInFailure)
-                return StatusCode(503, response);
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, response);
 
             return Ok(response);
         }
 
         [HttpGet("search")]
-        public ActionResult<Response<List<Dictionary<string, string>>>> Search(
+        [ProducesResponseType<Response<List<Dictionary<string, string>>>>(StatusCodes.Status200OK)]
+        public IActionResult Search(
             [FromQuery] string filter = "(objectClass=*)",
             [FromQuery] string? attributes = null)
         {

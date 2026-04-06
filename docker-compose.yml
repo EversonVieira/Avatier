@@ -8,20 +8,6 @@ services:
     extra_hosts:
       - "localhost:host-gateway"
       - "host.docker.internal:host-gateway"
-  postgres:
-    image: postgres:16
-    container_name: postgres_avatier
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: NFlow
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    extra_hosts:
-      - "localhost:host-gateway"
-      - "host.docker.internal:host-gateway"
   seq:
     image: datalust/seq:2024
     container_name: seq_avatier
@@ -56,6 +42,8 @@ services:
     volumes:
       - openldap_data:/var/lib/ldap
       - openldap_config:/etc/ldap/slapd.d
+      - ./ldap/seed.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/seed.ldif
+    command: --copy-service
     extra_hosts:
       - "localhost:host-gateway"
       - "host.docker.internal:host-gateway"
@@ -73,7 +61,6 @@ services:
       - "localhost:host-gateway"
       - "host.docker.internal:host-gateway"
 volumes:
-    postgres_data:
     seq_data:
     openldap_data:
     openldap_config:

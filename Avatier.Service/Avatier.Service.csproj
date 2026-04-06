@@ -13,8 +13,4 @@
     <PackageReference Include="System.DirectoryServices.Protocols" Version="10.0.5" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Mapping\" />
-  </ItemGroup>
-
 </Project>

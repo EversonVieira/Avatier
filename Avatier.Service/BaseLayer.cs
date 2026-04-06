@@ -8,9 +8,9 @@ namespace Avatier.Service
     public abstract class BaseLayer
     {
         protected readonly ILogger _logger;
-        private readonly LoggingOptions _options;
+        private readonly LogFeederOptions _options;
 
-        protected BaseLayer(ILogger logger, IOptions<LoggingOptions> options)
+        protected BaseLayer(ILogger logger, IOptions<LogFeederOptions> options)
         {
             _logger = logger;
             _options = options.Value;
@@ -18,7 +18,7 @@ namespace Avatier.Service
 
         protected void Log(LogLevel level, string message, object?[]? args = default, LogSensitivityLevelEnum logSensitivityLevel = LogSensitivityLevelEnum.Debug)
         {
-            if (logSensitivityLevel > _options.AllowedLogLevel)
+            if (logSensitivityLevel > _options.AllowedSensitivity)
             {
                 return;
             }

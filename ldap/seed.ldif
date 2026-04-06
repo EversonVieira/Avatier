@@ -1,0 +1,48 @@
+dn: ou=People,dc=avatier,dc=local
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Groups,dc=avatier,dc=local
+objectClass: organizationalUnit
+ou: Groups
+
+dn: uid=jdoe,ou=People,dc=avatier,dc=local
+objectClass: inetOrgPerson
+uid: jdoe
+cn: John Doe
+sn: Doe
+givenName: John
+mail: john.doe@avatier.local
+telephoneNumber: +1-555-0101
+userPassword: password123
+
+dn: uid=jsmith,ou=People,dc=avatier,dc=local
+objectClass: inetOrgPerson
+uid: jsmith
+cn: Jane Smith
+sn: Smith
+givenName: Jane
+mail: jane.smith@avatier.local
+telephoneNumber: +1-555-0102
+userPassword: password123
+
+dn: uid=bwilson,ou=People,dc=avatier,dc=local
+objectClass: inetOrgPerson
+uid: bwilson
+cn: Bob Wilson
+sn: Wilson
+givenName: Bob
+mail: bob.wilson@avatier.local
+telephoneNumber: +1-555-0103
+userPassword: password123
+
+dn: cn=developers,ou=Groups,dc=avatier,dc=local
+objectClass: groupOfNames
+cn: developers
+member: uid=jdoe,ou=People,dc=avatier,dc=local
+member: uid=jsmith,ou=People,dc=avatier,dc=local
+
+dn: cn=admins,ou=Groups,dc=avatier,dc=local
+objectClass: groupOfNames
+cn: admins
+member: uid=jdoe,ou=People,dc=avatier,dc=local

@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Avatier.Service.Options
 {
-    public class LoggingOptions
+    public class LogFeederOptions
     {
-        public LogSensitivityLevelEnum AllowedLogLevel { get; set; }
+        public LogSensitivityLevelEnum AllowedSensitivity { get; set; }
     }
 }

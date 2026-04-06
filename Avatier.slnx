@@ -1,7 +1,8 @@
 <Solution>
-  <Folder Name="/Solution Items/" />
+  <Folder Name="/Solution Items/">
+    <File Path="ARCHITECTURE.md" />
+  </Folder>
   <Project Path="Avatier.Api/Avatier.Api.csproj" />
-  <Project Path="Avatier.Migrations/Avatier.Migrations.csproj" />
   <Project Path="Avatier.Service/Avatier.Service.csproj" />
   <Project Path="docker-compose.dcproj">
     <Build />
