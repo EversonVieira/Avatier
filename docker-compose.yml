@@ -1,0 +1,79 @@
+services:
+  avatier.api:
+    image: ${DOCKER_REGISTRY-}avatierapi
+    container_name: avatier_api
+    build:
+      context: Avatier.Api
+      dockerfile: Dockerfile
+    extra_hosts:
+      - "localhost:host-gateway"
+      - "host.docker.internal:host-gateway"
+  postgres:
+    image: postgres:16
+    container_name: postgres_avatier
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: NFlow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    extra_hosts:
+      - "localhost:host-gateway"
+      - "host.docker.internal:host-gateway"
+  seq:
+    image: datalust/seq:2024
+    container_name: seq_avatier
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FREETIER: Y
+      SEQ_FIRSTRUN_ADMINUSERNAME: Admin
+      SEQ_FIRSTRUN_ADMINPASSWORD: Admin@123
+    ports:
+      - "5341:5341"
+      - "5340:5340"
+      - "8100:80"
+    volumes:
+      - seq_data:/data
+    extra_hosts:
+      - "localhost:host-gateway"
+      - "host.docker.internal:host-gateway"
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: openldap_avatier
+    environment:
+      LDAP_ORGANISATION: "Avatier"
+      LDAP_DOMAIN: "avatier.local"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_CONFIG_PASSWORD: "config"
+      LDAP_READONLY_USER: "true"
+      LDAP_READONLY_USER_USERNAME: "readonly"
+      LDAP_READONLY_USER_PASSWORD: "readonly"
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - openldap_data:/var/lib/ldap
+      - openldap_config:/etc/ldap/slapd.d
+    extra_hosts:
+      - "localhost:host-gateway"
+      - "host.docker.internal:host-gateway"
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: phpldapadmin_avatier
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "openldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8200:80"
+    depends_on:
+      - openldap
+    extra_hosts:
+      - "localhost:host-gateway"
+      - "host.docker.internal:host-gateway"
+volumes:
+    postgres_data:
+    seq_data:
+    openldap_data:
+    openldap_config:
